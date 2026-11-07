@@ -77,12 +77,13 @@ jobs:
           echo "Injecting dylib directly into binary package..."
           cp working_dir/spotifyglass.dylib "$APP_DIR/"
           
-          # Install insert_dylib tool via Homebrew to handle the binding
-          brew install insert_dylib
+          echo "Compiling insert_dylib tool from source..."
+          git clone https://github.com working_dir/insert_dylib_src
+          clang working_dir/insert_dylib_src/insert_dylib/*.c -o working_dir/insert_dylib
           
-          # Run binary patch injection targeting the main executable
+          echo "Running binary patch injection targeting the main executable..."
           BINARY_PATH="$APP_DIR/Spotify"
-          insert_dylib --allow-missing-weak "@executable_path/spotifyglass.dylib" "$BINARY_PATH" "$BINARY_PATH" --inplace
+          ./working_dir/insert_dylib --allow-missing-weak "@executable_path/spotifyglass.dylib" "$BINARY_PATH" "$BINARY_PATH" --inplace
           
           echo "Repackaging modified application..."
           cd working_dir/extracted
